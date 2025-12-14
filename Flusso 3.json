@@ -1,0 +1,269 @@
+{
+  "name": "Flusso 3",
+  "nodes": [
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "={{ $json.name }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1Jj86mioOLkm_kqor249ioti6OXrLvuuN",
+          "mode": "list",
+          "cachedResultName": "Cartella Test",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1Jj86mioOLkm_kqor249ioti6OXrLvuuN"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        704,
+        144
+      ],
+      "id": "7dfe14cc-28a0-4447-a442-6c742b5e970f",
+      "name": "Create folder",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "qPMxPbXEkiB184Lw",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prende il testo dell'email dal nodo precedente\nconst body = $json.text || '';\n\n// Regex per estrarre il nome della cartella\nconst regex = /Crea cartella:\\s*(.+)/i;\nconst match = body.match(regex);\n\n// Nome della cartella (default se non trovato)\nconst name = match ? match[1].trim() : 'Nuova Cartella';\n\n// Output per il nodo Create Folder e Slack\nreturn [\n  {\n    json: {\n      name,          // usato in Create Folder\n      debugBody: body // opzionale, per vedere cosa ha letto\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        496,
+        144
+      ],
+      "id": "aa6fb185-5682-4065-9d55-78c5cc142335",
+      "name": "Estrae nome"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        48,
+        144
+      ],
+      "id": "35a8ca12-b568-48ff-9178-dba73acf65b4",
+      "name": "Gmail Trigger1",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "CGksUiurAdsIZwDF",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "messageId": "={{ $json.id }}",
+        "simple": false,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        256,
+        144
+      ],
+      "id": "fbb0d9c7-5baf-4605-aece-a6cd48c096de",
+      "name": "Get a message1",
+      "webhookId": "5466bde2-65d4-470f-a03b-90a275c6d86a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "CGksUiurAdsIZwDF",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C09FHT98TB4",
+          "mode": "list",
+          "cachedResultName": "nuovo-canale"
+        },
+        "text": "==📂 Una nuova cartella rinominata \"={{$json[\"name\"]}}\" è stata creata sul tuo Drive. <https://drive.google.com/drive/folders/{{$json[\"id\"]}}|Apri la cartella>\n\n",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        928,
+        144
+      ],
+      "id": "a1b2d123-caf9-49e6-b6eb-ac5b77366744",
+      "name": "Send a message1",
+      "webhookId": "d513c662-23de-4bb0-8dc1-907c4e7361a9",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "MwfqAFePwrCxeXtY",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "Trigger\n\nRuolo: avvia il workflow all'arrivo di una nuova mail",
+        "height": 112,
+        "width": 150,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "9cb352a9-6541-40c3-ae79-ccadbc4996c3",
+      "name": "Sticky Note12"
+    },
+    {
+      "parameters": {
+        "content": "Get a message\n\nRuolo:recupera l'intero contenuto del messaggio gmai",
+        "height": 112,
+        "width": 160,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        224,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "9ad2b24a-216a-4c10-8899-ec6874917201",
+      "name": "Sticky Note13"
+    },
+    {
+      "parameters": {
+        "content": "Estrae Nome\n\nRuolo: Cerca commando crea cartella e cerca  info per  rinominarla",
+        "height": 112,
+        "width": 192,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        448,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "d09762f5-3200-4bdd-aa26-c57d10d64bb2",
+      "name": "Sticky Note14"
+    },
+    {
+      "parameters": {
+        "content": "Crea cartella\n\nRuolo: Crea cartella su drive e se trova un nome la rinomina",
+        "height": 112,
+        "width": 192,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        672,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "741f2018-bdb5-4516-aca1-53714e4fe02d",
+      "name": "Sticky Note15"
+    },
+    {
+      "parameters": {
+        "content": "Send a message\n\nRuolo: invia notifica a slack contenente link diretto alla cartella drive",
+        "height": 112,
+        "width": 208,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        896,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "2e8d3b31-54bb-4b0d-ad26-2563ba8a8a60",
+      "name": "Sticky Note16"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Create folder": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Estrae nome": {
+      "main": [
+        [
+          {
+            "node": "Create folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Trigger1": {
+      "main": [
+        [
+          {
+            "node": "Get a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a message1": {
+      "main": [
+        [
+          {
+            "node": "Estrae nome",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3a0d602a-bd29-4cbc-a0bb-811327790649",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3eade08974c65ea0e714de990b1c4d4deb3f525e0d19f574aa90538cacfd42e4"
+  },
+  "id": "YjqXWhNEwHuxa4tv",
+  "tags": []
+}
